@@ -34,32 +34,6 @@ ru:
 
 Вам никогда не придется использовать eject. Разработанный набор функций подходит для небольших и средних развертываний, и вы не должны чувствовать себя обязанными использовать эту функцию. Однако мы понимаем, что этот инструмент не был бы полезен, если бы вы не могли настроить его, когда будете готовы к этому.
 
-Узнать больше
-Вы можете узнать больше в документации по созданию приложения React.
-
-Чтобы изучить React, ознакомьтесь с документацией React .
-
-Разделение кода
-Этот раздел перенесен сюда: https://facebook.github.io/create-react-app/docs/code-splitting
-
-Анализ размера пакета
-Этот раздел перенесен сюда: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-Создание прогрессивного веб-приложения
-Этот раздел перенесен сюда: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-Расширенная конфигурация
-Этот раздел перенесен сюда: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-Развертывание
-Этот раздел перенесен сюда: https://facebook.github.io/create-react-app/docs/deployment
-
-сборку при запуске npm не удается сократить до минимума
-Этот раздел перенесен сюда: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
-
-
-
-
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
