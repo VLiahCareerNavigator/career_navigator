@@ -34,6 +34,7 @@
 
 Для добавления api нейросети использовался репозеторий : https://github.com/chatanywhere/GPT_API_free
 вы можете использовать свой api от туда, либо оставить тот, который уже находится в коде
+
 ru:
 # Getting Started with Create React App
 Этот проект был загружен с помощью Create React App.
