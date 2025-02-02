@@ -211,7 +211,6 @@
       <section id="results" class="card hidden">
         <h2 class="text-2xl font-bold mb-4">Твои результаты</h2>
         <div id="ai-recommendations" class="mb-4"></div>
-        <!-- Убрана секция мотивационной цитаты и кнопка сохранения Excel -->
         <div id="map" class="mb-4"></div>
         <button id="restart-button" onclick="resetApp()" class="button mt-4">Начать заново</button>
       </section>
@@ -421,6 +420,18 @@
         L.marker([uni.lat, uni.lon]).addTo(map)
           .bindPopup(`<b>${uni.name}</b><br><a href="https://www.vuzopedia.ru/search?q=${encodeURIComponent(uni.name)}" target="_blank" class="button">Подробнее на Vuzopedia</a>`);
       });
+    }
+
+    function resetApp() {
+      selectedSubjects = [];
+      grades = {};
+      userName = '';
+      aiRecommendationsData = null;
+      document.getElementById('name-input').value = '';
+      document.querySelectorAll('.subject-item').forEach(item => item.classList.remove('selected'));
+      document.querySelectorAll('.grade-button').forEach(button => button.classList.remove('selected'));
+      document.getElementById('ai-recommendations').innerHTML = ''; // Очистка рекомендаций
+      showSection('welcome'); // Показать начальный экран
     }
 
     async function sendMessage() {
