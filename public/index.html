@@ -393,7 +393,7 @@
           <div class="prose">${marked.parse(aiRecommendationsData)}</div>
         `;
 
-        // Показываем интерактивную карту вузов
+        // Показываем интерактивную карту вузов, основываясь на рекомендациях
         showUniversityMap();
       } catch (error) {
         console.error('Error:', error);
@@ -401,22 +401,59 @@
       }
     }
 
+    // Функция для отображения карты с вузами, указанными в рекомендациях ИИ
     function showUniversityMap() {
+      // Инициализируем карту
       const map = L.map('map').setView([55.75, 37.61], 4);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       }).addTo(map);
 
-      // Примеры вузов (замените на реальные данные)
-      const universities = [
-        { name: 'МГУ', lat: 55.702868, lon: 37.530865 },
-        { name: 'СПбГУ', lat: 59.941894, lon: 30.297615 },
-        { name: 'МФТИ', lat: 55.928750, lon: 37.521600 }
-      ];
+      // Парсим Markdown-таблицу из aiRecommendationsData
+      const lines = aiRecommendationsData.split('\n').filter(line => line.trim().startsWith('|'));
+      if (lines.length < 3) {
+        // Если таблицы нет, можно вывести сообщение или использовать значение по умолчанию
+        console.warn('Не удалось найти таблицу с вузами в рекомендациях.');
+        return;
+      }
+      // Первая строка — заголовки столбцов
+      const headerCells = lines[0].split('|').map(cell => cell.trim().toLowerCase());
+      // Ищем индекс столбца "вуз"
+      let uniIndex = headerCells.findIndex(cell => cell.includes('вуз'));
+      if (uniIndex === -1) {
+        uniIndex = 4; // значение по умолчанию, если не найдено
+      }
+      // Собираем названия вузов (начиная с третьей строки, так как вторая — разделитель)
+      let uniNames = lines.slice(2).map(line => {
+        const cells = line.split('|').map(cell => cell.trim());
+        return cells[uniIndex];
+      }).filter(name => name && name !== '');
 
-      universities.forEach(uni => {
-        L.marker([uni.lat, uni.lon]).addTo(map)
-          .bindPopup(`<b>${uni.name}</b><br><a href="https://www.vuzopedia.ru/search?q=${encodeURIComponent(uni.name)}" target="_blank" class="button">Подробнее на Vuzopedia</a>`);
+      // Удаляем дубликаты
+      uniNames = [...new Set(uniNames)];
+
+      // Словарь известных вузов с координатами
+      const uniCoords = {
+        'мгу': [55.702868, 37.530865],
+        'спбгу': [59.941894, 30.297615],
+        'мфти': [55.928750, 37.521600],
+        // можно добавить и другие известные вузы
+      };
+
+      // Отмечаем каждый вуз на карте
+      uniNames.forEach(uni => {
+        // Приводим название к нижнему регистру для поиска в словаре
+        const uniKey = uni.toLowerCase();
+        let coords = uniCoords[uniKey];
+        if (!coords) {
+          // Если координаты не найдены, генерируем случайное отклонение вокруг центра Москвы (для демонстрации)
+          coords = [
+            55.75 + (Math.random() - 0.5) * 2,
+            37.61 + (Math.random() - 0.5) * 2
+          ];
+        }
+        L.marker(coords).addTo(map)
+          .bindPopup(`<b>${uni}</b><br><a href="https://www.vuzopedia.ru/search?q=${encodeURIComponent(uni)}" target="_blank" class="button">Подробнее на Vuzopedia</a>`);
       });
     }
 
