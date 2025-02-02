@@ -1,369 +1,493 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Карьерный Навигатор</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <style>
-        .card {
-            background-color: #ffffff;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-        .button {
-            display: inline-block;
-            background-color: #3b82f6;
-            color: #ffffff;
-            padding: 0.5rem 1rem;
-            border-radius: 0.25rem;
-            text-decoration: none;
-            transition: background-color 0.3s;
-        }
-        .button:hover {
-            background-color: #2563eb;
-        }
-        .subject-item {
-            background-color: #f3f4f6;
-            padding: 0.5rem;
-            border-radius: 0.25rem;
-            text-align: center;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .subject-item.selected {
-            background-color: #3b82f6;
-            color: #ffffff;
-        }
-        .grade-button {
-            background-color: #f3f4f6;
-            border: none;
-            padding: 0.25rem 0.5rem;
-            border-radius: 0.25rem;
-            cursor: pointer;
-        }
-        .grade-button.selected {
-            background-color: #3b82f6;
-            color: #ffffff;
-        }
-        .chat-message {
-            margin-bottom: 1rem;
-            padding: 0.5rem;
-            border-radius: 0.5rem;
-        }
-        .user-message {
-            background-color: #e5e7eb;
-            text-align: right;
-        }
-        .bot-message {
-            background-color: #dbeafe;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Карьерный Навигатор</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <style>
+    .card {
+      background-color: #ffffff;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .button {
+      display: inline-block;
+      background-color: #3b82f6;
+      color: #ffffff;
+      padding: 0.5rem 1rem;
+      border-radius: 0.25rem;
+      text-decoration: none;
+      transition: background-color 0.3s;
+    }
+    .button:hover {
+      background-color: #2563eb;
+    }
+    .subject-item {
+      background-color: #f3f4f6;
+      padding: 0.5rem;
+      border-radius: 0.25rem;
+      text-align: center;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .subject-item.selected {
+      background-color: #3b82f6;
+      color: #ffffff;
+    }
+    .grade-button {
+      background-color: #f3f4f6;
+      border: none;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      cursor: pointer;
+    }
+    .grade-button.selected {
+      background-color: #3b82f6;
+      color: #ffffff;
+    }
+    .chat-message {
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+    }
+    .user-message {
+      background-color: #e5e7eb;
+      text-align: right;
+    }
+    .bot-message {
+      background-color: #dbeafe;
+    }
+    /* Стили для Markdown-таблицы */
+    .prose table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .prose table, .prose th, .prose td {
+      border: 1px solid #e5e7eb;
+    }
+    .prose th, .prose td {
+      padding: 0.5rem;
+      text-align: left;
+    }
+    /* Стили для темной темы */
+    .dark-mode {
+      background-color: #1a202c;
+      color: #e2e8f0;
+    }
+    .dark-mode .card {
+      background-color: #2d3748;
+      color: #e2e8f0;
+    }
+    .dark-mode .button {
+      background-color: #4a5568;
+    }
+    .dark-mode .button:hover {
+      background-color: #718096;
+    }
+    .dark-mode .subject-item {
+      background-color: #4a5568;
+      color: #e2e8f0;
+    }
+    .dark-mode .subject-item.selected {
+      background-color: #3b82f6;
+    }
+    .dark-mode .grade-button {
+      background-color: #4a5568;
+      color: #e2e8f0;
+    }
+    .dark-mode .grade-button.selected {
+      background-color: #3b82f6;
+    }
+    .dark-mode .chat-message {
+      background-color: #4a5568;
+      color: #e2e8f0;
+    }
+    .dark-mode .user-message {
+      background-color: #2d3748;
+    }
+    .dark-mode .bot-message {
+      background-color: #374151;
+    }
+    .dark-mode .prose table, .dark-mode .prose th, .dark-mode .prose td {
+      border-color: #4a5568;
+    }
+    /* Стили для прогресс-бара */
+    .progress-bar {
+      width: 100%;
+      height: 20px;
+      background-color: #e2e8f0;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .progress {
+      width: 0%;
+      height: 100%;
+      background-color: #3b82f6;
+      transition: width 0.5s ease-in-out;
+    }
+    /* Стили для карты */
+    #map {
+      height: 400px;
+      width: 100%;
+      margin-top: 20px;
+    }
+    /* Стили для анимации загрузки */
+    .loader {
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid #3498db;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    /* Адаптивные стили */
+    @media (max-width: 640px) {
+      .card {
+        padding: 1rem;
+      }
+      #subject-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .prose table {
+        font-size: 0.875rem;
+      }
+    }
+  </style>
+  <!-- Подключаем библиотеку Marked для поддержки Markdown -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 </head>
 <body class="bg-gray-100 font-sans">
-    <header class="bg-white shadow-md">
-        <div class="container mx-auto px-4 py-6">
-            <h1 class="text-3xl font-bold text-gray-800">Карьерный Навигатор</h1>
-            <nav class="mt-4">
-                <ul class="flex space-x-4">
-                    <li><a href="#" class="text-blue-600 hover:text-blue-800" onclick="showTab('main')">Главная</a></li>
-                    <li><a href="#" class="text-blue-600 hover:text-blue-800" onclick="showTab('about')">О проекте</a></li>
-                    <li><a href="#" class="text-blue-600 hover:text-blue-800" onclick="showTab('chat')">Чат с ботом</a></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
+  <header class="bg-white shadow-md">
+    <div class="container mx-auto px-4 py-6">
+      <h1 class="text-3xl font-bold text-gray-800">Карьерный Навигатор</h1>
+      <nav class="mt-4">
+        <ul class="flex flex-wrap space-x-4">
+          <li><a href="#" class="text-blue-600 hover:text-blue-800" onclick="showTab('main')">Главная</a></li>
+          <li><a href="#" class="text-blue-600 hover:text-blue-800" onclick="showTab('about')">О проекте</a></li>
+          <li><a href="#" class="text-blue-600 hover:text-blue-800" onclick="showTab('chat')">Чат с ботом</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
 
-    <main class="container mx-auto px-4 py-8">
-        <div id="main-content">
-            <section id="welcome" class="card">
-                <h2 class="text-2xl font-bold mb-4">Привет, я Бот-профи!</h2>
-                <p class="mb-4">Твой гид в мире будущих профессий</p>
-                <p class="mb-4">Давай разберёмся, кем ты хочешь стать!</p>
-                <button class="button" onclick="showSection('name')">Начать</button>
-            </section>
+  <main class="container mx-auto px-4 py-8">
+    <div id="main-content">
+      <section id="welcome" class="card">
+        <h2 class="text-2xl font-bold mb-4">Привет, я Бот-профи!</h2>
+        <p class="mb-4">Твой гид в мире будущих профессий</p>
+        <p class="mb-4">Давай разберёмся, кем ты хочешь стать!</p>
+        <button class="button" onclick="showSection('name')">Начать</button>
+      </section>
 
-            <section id="name" class="card hidden">
-                <h2 class="text-2xl font-bold mb-4">Как тебя зовут?</h2>
-                <input type="text" id="name-input" placeholder="Введи своё имя" class="w-full p-2 mb-4 border rounded">
-                <button class="button" onclick="showSection('interests')">Далее</button>
-            </section>
+      <section id="name" class="card hidden">
+        <h2 class="text-2xl font-bold mb-4">Как тебя зовут?</h2>
+        <input type="text" id="name-input" placeholder="Введи своё имя" class="w-full p-2 mb-4 border rounded">
+        <button class="button" onclick="showSection('interests')">Далее</button>
+      </section>
 
-            <section id="interests" class="card hidden">
-                <h2 class="text-2xl font-bold mb-4">Выбери интересующие предметы</h2>
-                <div id="subject-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-4"></div>
-                <button class="button" onclick="showSection('grades')">Далее</button>
-            </section>
+      <section id="interests" class="card hidden">
+        <h2 class="text-2xl font-bold mb-4">Выбери интересующие предметы</h2>
+        <div id="subject-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-4"></div>
+        <button class="button" onclick="showSection('grades')">Далее</button>
+      </section>
 
-            <section id="grades" class="card hidden">
-                <h2 class="text-2xl font-bold mb-4">Укажи свои оценки</h2>
-                <div id="grade-selectors" class="space-y-4 mb-4"></div>
-                <button class="button" onclick="getAIRecommendations()">Получить рекомендации</button>
-            </section>
+      <section id="grades" class="card hidden">
+        <h2 class="text-2xl font-bold mb-4">Укажи свои оценки</h2>
+        <div id="grade-selectors" class="space-y-4 mb-4"></div>
+        <button class="button" onclick="getAIRecommendations()">Получить рекомендации</button>
+      </section>
 
-            <section id="results" class="card hidden">
-                <h2 class="text-2xl font-bold mb-4">Твои результаты</h2>
-                <div id="ai-recommendations" class="mb-4"></div>
-                <button id="restart-button" onclick="resetApp()" class="button mt-4">Начать заново</button>
-            </section>
-        </div>
+      <section id="results" class="card hidden">
+        <h2 class="text-2xl font-bold mb-4">Твои результаты</h2>
+        <div id="ai-recommendations" class="mb-4"></div>
+        <!-- Убрана секция мотивационной цитаты и кнопка сохранения Excel -->
+        <div id="map" class="mb-4"></div>
+        <button id="restart-button" onclick="resetApp()" class="button mt-4">Начать заново</button>
+      </section>
+    </div>
 
-        <div id="about-content" class="card hidden">
-            <h2 class="text-2xl font-bold mb-4">О проекте</h2>
-            <p class="mb-4">Проект выполнен по заказу ГАУ ИДПО ДТиСЗН (2024-ИДПО-1)</p>
-            
-            <h3 class="text-xl font-bold mb-2">Проблема</h3>
-            <p class="mb-4">Дефицит доступных и понятных средств профессиональной ориентации для школьников 8 класса</p>
-            <ul class="list-disc list-inside mb-4">
-                <li>Недостаток знаний у школьников о направлении их будущей профессии</li>
-                <li>Сложности в выборе подходящих профессий из-за отсутствия индивидуальных рекомендаций</li>
-                <li>Низкая осведомленность о современных трендах рынка труда</li>
-            </ul>
+    <div id="about-content" class="card hidden">
+      <h2 class="text-2xl font-bold mb-4">О проекте</h2>
+      <p class="mb-4">Проект выполнен по заказу ГАУ ИДПО ДТиСЗН (2024-ИДПО-1)</p>
+      <h3 class="text-xl font-bold mb-2">Проблема</h3>
+      <p class="mb-4">Дефицит доступных и понятных средств профессиональной ориентации для школьников 8 класса</p>
+      <ul class="list-disc list-inside mb-4">
+        <li>Недостаток знаний у школьников о направлении их будущей профессии</li>
+        <li>Сложности в выборе подходящих профессий из-за отсутствия индивидуальных рекомендаций</li>
+        <li>Низкая осведомленность о современных трендах рынка труда</li>
+      </ul>
+      <h3 class="text-xl font-bold mb-2">Цель</h3>
+      <p class="mb-4">Повысить качество и упростить прохождение профессиональной ориентации для школьников восьмых классов, предоставляя индивидуальные рекомендации на основе анализа уровня знаний и интересов учеников с использованием ИИ.</p>
+      <h3 class="text-xl font-bold mb-2">Актуальность</h3>
+      <ul class="list-disc list-inside mb-4">
+        <li>Быстро меняющийся рынок труда требует ранней профориентации</li>
+        <li>Развитие ИИ открывает новые возможности для персонализации</li>
+        <li>Увеличение числа восьмиклассников, которые нуждаются в помощи при выборе профессии</li>
+        <li>Поддержка государства в цифровизации образования</li>
+      </ul>
+      <h3 class="text-xl font-bold mb-2">Преимущества</h3>
+      <ul class="list-disc list-inside mb-4">
+        <li>Индивидуальный подход к каждому ученику</li>
+        <li>Учет знаний и интересов школьников</li>
+        <li>Простота использования для учеников и учителей</li>
+        <li>Актуальность рекомендаций в современных условиях</li>
+      </ul>
+      <h3 class="text-xl font-bold mb-2">Заключение</h3>
+      <p>Наш проект направлен на упрощение процесса профессиональной ориентации восьмиклассников с использованием современных технологий ИИ. Мы стремимся сделать выбор профессии более осознанным и доступным для каждого школьника.</p>
+    </div>
 
-            <h3 class="text-xl font-bold mb-2">Цель</h3>
-            <p class="mb-4">Повысить качество и упростить прохождение профессиональной ориентации для школьников восьмых классов, предоставляя индивидуальные рекомендации на основе анализа уровня знаний и интересов учеников с использованием ИИ.</p>
+    <div id="chat-content" class="card hidden">
+      <h2 class="text-2xl font-bold mb-4">Чат с ботом</h2>
+      <div id="chat-messages" class="mb-4 h-64 overflow-y-auto"></div>
+      <div class="flex">
+        <input type="text" id="chat-input" placeholder="Введите ваше сообщение..." class="flex-grow p-2 border rounded-l">
+        <button onclick="sendMessage()" class="button rounded-l-none">Отправить</button>
+      </div>
+    </div>
+  </main>
 
-            <h3 class="text-xl font-bold mb-2">Актуальность</h3>
-            <ul class="list-disc list-inside mb-4">
-                <li>Быстро меняющийся рынок труда требует ранней профориентации</li>
-                <li>Развитие ИИ открывает новые возможности для персонализации</li>
-                <li>Увеличение числа восьмиклассников, которые нуждаются в помощи при выборе профессии</li>
-                <li>Поддержка государства в цифровизации образования</li>
-            </ul>
+  <footer class="bg-gray-800 text-white py-4 mt-8">
+    <div class="container mx-auto px-4 text-center">
+      <p>&copy; 2024 Карьерный Навигатор. Все права защищены.</p>
+    </div>
+  </footer>
 
-            <h3 class="text-xl font-bold mb-2">Преимущества</h3>
-            <ul class="list-disc list-inside mb-4">
-                <li>Индивидуальный подход к каждому ученику</li>
-                <li>Учет знаний и интересов школьников</li>
-                <li>Простота использования для учеников и учителей</li>
-                <li>Актуальность рекомендаций в современных условиях</li>
-            </ul>
+  <button id="theme-toggle" class="fixed bottom-4 right-4 p-2 bg-gray-200 rounded-full">🌓</button>
 
-            <h3 class="text-xl font-bold mb-2">Заключение</h3>
-            <p>Наш проект направлен на упрощение процесса профессиональной ориентации восьмиклассников с использованием современных технологий ИИ. Мы стремимся сделать выбор профессии более осознанным и доступным для каждого школьника.</p>
-        </div>
+  <script>
+    const subjects = [
+      { id: 'math', name: 'Математика', emoji: '🔢' },
+      { id: 'physics', name: 'Физика', emoji: '⚡' },
+      { id: 'informatics', name: 'Информатика', emoji: '💻' },
+      { id: 'chemistry', name: 'Химия', emoji: '🧪' },
+      { id: 'biology', name: 'Биология', emoji: '🧬' },
+      { id: 'history', name: 'История', emoji: '📚' },
+      { id: 'social', name: 'Обществознание', emoji: '👥' },
+      { id: 'literature', name: 'Литература', emoji: '📖' },
+      { id: 'language', name: 'Иностранный язык', emoji: '🌍' },
+      { id: 'russian', name: 'Русский язык', emoji: '✍️' },
+      { id: 'geography', name: 'География', emoji: '🌎' },
+      { id: 'art', name: 'Искусство', emoji: '🎨' }
+    ];
 
-        <div id="chat-content" class="card hidden">
-            <h2 class="text-2xl font-bold mb-4">Чат с ботом</h2>
-            <div id="chat-messages" class="mb-4 h-64 overflow-y-auto"></div>
-            <div class="flex">
-                <input type="text" id="chat-input" placeholder="Введите ваше сообщение..." class="flex-grow p-2 border rounded-l">
-                <button onclick="sendMessage()" class="button rounded-l-none">Отправить</button>
-            </div>
-        </div>
-    </main>
+    let selectedSubjects = [];
+    let grades = {};
+    let userName = '';
+    let aiRecommendationsData = null;
 
-    <footer class="bg-gray-800 text-white py-4 mt-8">
-        <div class="container mx-auto px-4 text-center">
-            <p>&copy; 2024 Карьерный Навигатор. Все права защищены.</p>
-        </div>
-    </footer>
+    function showSection(sectionId) {
+      document.querySelectorAll('#main-content > section').forEach(section => {
+        section.classList.add('hidden');
+      });
+      document.getElementById(sectionId).classList.remove('hidden');
 
-    <script>
-        const subjects = [
-            { id: 'math', name: 'Математика', emoji: '🔢' },
-            { id: 'physics', name: 'Физика', emoji: '⚡' },
-            { id: 'informatics', name: 'Информатика', emoji: '💻' },
-            { id: 'chemistry', name: 'Химия', emoji: '🧪' },
-            { id: 'biology', name: 'Биология', emoji: '🧬' },
-            { id: 'history', name: 'История', emoji: '📚' },
-            { id: 'social', name: 'Обществознание', emoji: '👥' },
-            { id: 'literature', name: 'Литература', emoji: '📖' },
-            { id: 'language', name: 'Иностранный язык', emoji: '🌍' },
-            { id: 'russian', name: 'Русский язык', emoji: '✍️' },
-            { id: 'geography', name: 'География', emoji: '🌎' },
-            { id: 'art', name: 'Искусство', emoji: '🎨' }
-        ];
+      if (sectionId === 'interests') {
+        renderSubjects();
+      } else if (sectionId === 'grades') {
+        renderGradeSelectors();
+      } else if (sectionId === 'name') {
+        userName = '';
+      }
+    }
 
-        let selectedSubjects = [];
-        let grades = {};
-        let userName = '';
+    function renderSubjects() {
+      const subjectGrid = document.getElementById('subject-grid');
+      subjectGrid.innerHTML = '';
+      subjects.forEach(subject => {
+        const subjectElement = document.createElement('div');
+        subjectElement.className = 'subject-item';
+        subjectElement.textContent = `${subject.emoji} ${subject.name}`;
+        subjectElement.onclick = () => toggleSubject(subject.id, subjectElement);
+        subjectGrid.appendChild(subjectElement);
+      });
+    }
 
-        function showSection(sectionId) {
-            document.querySelectorAll('#main-content > section').forEach(section => {
-                section.classList.add('hidden');
-            });
-            document.getElementById(sectionId).classList.remove('hidden');
+    function toggleSubject(subjectId, element) {
+      if (selectedSubjects.includes(subjectId)) {
+        selectedSubjects = selectedSubjects.filter(id => id !== subjectId);
+        element.classList.remove('selected');
+      } else {
+        selectedSubjects.push(subjectId);
+        element.classList.add('selected');
+      }
+    }
 
-            if (sectionId === 'interests') {
-                renderSubjects();
-            } else if (sectionId === 'grades') {
-                renderGradeSelectors();
-            } else if (sectionId === 'name') {
-                userName = '';
-            }
+    function renderGradeSelectors() {
+      const gradeSelectors = document.getElementById('grade-selectors');
+      gradeSelectors.innerHTML = '';
+      selectedSubjects.forEach(subjectId => {
+        const subject = subjects.find(s => s.id === subjectId);
+        const selector = document.createElement('div');
+        selector.className = 'flex justify-between items-center';
+        selector.innerHTML = `
+          <span>${subject.emoji} ${subject.name}</span>
+          <div class="space-x-2">
+            ${[2, 3, 4, 5].map(grade => 
+              `<button class="grade-button" onclick="selectGrade('${subjectId}', ${grade})">${grade}</button>`
+            ).join('')}
+          </div>
+        `;
+        gradeSelectors.appendChild(selector);
+      });
+    }
+
+    function selectGrade(subjectId, grade) {
+      grades[subjectId] = grade;
+      const buttons = document.querySelectorAll(`#grade-selectors > div:nth-child(${selectedSubjects.indexOf(subjectId) + 1}) .grade-button`);
+      buttons.forEach(button => {
+        button.classList.remove('selected');
+        if (parseInt(button.textContent) === grade) {
+          button.classList.add('selected');
         }
+      });
+    }
 
-        function renderSubjects() {
-            const subjectGrid = document.getElementById('subject-grid');
-            subjectGrid.innerHTML = '';
-            subjects.forEach(subject => {
-                const subjectElement = document.createElement('div');
-                subjectElement.className = 'subject-item';
-                subjectElement.textContent = `${subject.emoji} ${subject.name}`;
-                subjectElement.onclick = () => toggleSubject(subject.id, subjectElement);
-                subjectGrid.appendChild(subjectElement);
-            });
-        }
+    async function getAIRecommendations() {
+      userName = document.getElementById('name-input').value;
+      if (!userName) {
+        alert('Пожалуйста, введите ваше имя.');
+        showSection('name');
+        return;
+      }
 
-        function toggleSubject(subjectId, element) {
-            if (selectedSubjects.includes(subjectId)) {
-                selectedSubjects = selectedSubjects.filter(id => id !== subjectId);
-                element.classList.remove('selected');
-            } else {
-                selectedSubjects.push(subjectId);
-                element.classList.add('selected');
-            }
-        }
+      const aiRecommendationsContainer = document.getElementById('ai-recommendations');
+      aiRecommendationsContainer.innerHTML = '<div class="loader"></div>';
+      showSection('results');
 
-        function renderGradeSelectors() {
-            const gradeSelectors = document.getElementById('grade-selectors');
-            gradeSelectors.innerHTML = '';
-            selectedSubjects.forEach(subjectId => {
-                const subject = subjects.find(s => s.id === subjectId);
-                const selector = document.createElement('div');
-                selector.className = 'flex justify-between items-center';
-                selector.innerHTML = `
-                    <span>${subject.emoji} ${subject.name}</span>
-                    <div class="space-x-2">
-                        ${[2, 3, 4, 5].map(grade => `
-                            <button class="grade-button" onclick="selectGrade('${subjectId}', ${grade})">${grade}</button>
-                        `).join('')}
-                    </div>
-                `;
-                gradeSelectors.appendChild(selector);
-            });
-        }
+      try {
+        const response = await fetch('https://api.chatanywhere.tech/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer sk-8s1V7S8JJv2X45w6Ekt8dcLnzV7gb75Dfu4HNuTYL4kqMReu'
+          },
+          body: JSON.stringify({
+            model: 'gpt-3.5-turbo',
+            messages: [
+              {
+                role: 'system',
+                content: 'Вы – карьерный консультант и дружелюбный помощник, специализирующийся на рекомендациях профессий и вузов для школьников в России. На основе выбранных пользователем предметов и оценок, Вам необходимо составить подробную таблицу с рекомендациями, где таблица должна содержать следующие колонки: "Профессия", "Краткое описание", "Плюсы и минусы профессии", "Средняя зарплата (в цифрах)", "Вуз", "Количество баллов для поступления", "Краткое описание вуза", "Плюсы и минусы вуза", "Какие предметы нужно сдать". При этом зарплата должна быть указана в цифрах (без смайликов) и относиться только к профессиям. После таблицы добавьте дополнительные рекомендации (например, какой предмет стоит изучить подробнее, или что изучать для успешной работы по выбранной профессии). Также добавьте ссылки на страницы профессий и вузов на сайте Vuzopedia.'
+              },
+              {
+                role: 'user',
+                content: `Меня зовут ${userName}. Мои любимые предметы: ${selectedSubjects.map(id => subjects.find(s => s.id === id).name).join(', ')}. Мои оценки: ${Object.entries(grades).map(([id, grade]) => `${subjects.find(s => s.id === id).name} - ${grade}`).join(', ')}. Посоветуйте мне подходящие профессии и вузы.`
+              }
+            ]
+          })
+        });
 
-        function selectGrade(subjectId, grade) {
-            grades[subjectId] = grade;
-            const buttons = document.querySelectorAll(`#grade-selectors > div:nth-child(${selectedSubjects.indexOf(subjectId) + 1}) .grade-button`);
-            buttons.forEach(button => {
-                button.classList.remove('selected');
-                if (parseInt(button.textContent) === grade) {
-                    button.classList.add('selected');
+        const data = await response.json();
+        aiRecommendationsData = data.choices[0].message.content;
+
+        // Преобразуем Markdown в HTML с помощью marked
+        aiRecommendationsContainer.innerHTML = `
+          <h3 class="text-xl font-bold mb-2">Рекомендации ИИ:</h3>
+          <div class="prose">${marked.parse(aiRecommendationsData)}</div>
+        `;
+
+        // Показываем интерактивную карту вузов
+        showUniversityMap();
+      } catch (error) {
+        console.error('Error:', error);
+        aiRecommendationsContainer.innerHTML = '<p>Произошла ошибка при получении рекомендаций. Пожалуйста, попробуйте еще раз.</p>';
+      }
+    }
+
+    function showUniversityMap() {
+      const map = L.map('map').setView([55.75, 37.61], 4);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
+
+      // Примеры вузов (замените на реальные данные)
+      const universities = [
+        { name: 'МГУ', lat: 55.702868, lon: 37.530865 },
+        { name: 'СПбГУ', lat: 59.941894, lon: 30.297615 },
+        { name: 'МФТИ', lat: 55.928750, lon: 37.521600 }
+      ];
+
+      universities.forEach(uni => {
+        L.marker([uni.lat, uni.lon]).addTo(map)
+          .bindPopup(`<b>${uni.name}</b><br><a href="https://www.vuzopedia.ru/search?q=${encodeURIComponent(uni.name)}" target="_blank" class="button">Подробнее на Vuzopedia</a>`);
+      });
+    }
+
+    async function sendMessage() {
+      const chatInput = document.getElementById('chat-input');
+      const message = chatInput.value.trim();
+      if (message) {
+        addMessageToChat('user', message);
+        chatInput.value = '';
+
+        try {
+          const response = await fetch('https://api.chatanywhere.tech/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer sk-8s1V7S8JJv2X45w6Ekt8dcLnzV7gb75Dfu4HNuTYL4kqMReu'
+            },
+            body: JSON.stringify({
+              model: 'gpt-3.5-turbo',
+              messages: [
+                {
+                  role: 'system',
+                  content: 'Вы – карьерный консультант и дружелюбный помощник, специализирующийся на рекомендациях профессий и вузов для школьников в России. Отвечайте только на вопросы, связанные с образованием, карьерой и профессиональным развитием.'
+                },
+                {
+                  role: 'user',
+                  content: message
                 }
-            });
+              ]
+            })
+          });
+
+          const data = await response.json();
+          const botReply = data.choices[0].message.content;
+          addMessageToChat('bot', botReply);
+        } catch (error) {
+          console.error('Error:', error);
+          addMessageToChat('bot', 'Извините, произошла ошибка. Попробуйте еще раз позже.');
         }
+      }
+    }
 
-        async function getAIRecommendations() {
-            userName = document.getElementById('name-input').value;
-            if (!userName) {
-                alert('Пожалуйста, введите ваше имя.');
-                showSection('name');
-                return;
-            }
+    function addMessageToChat(sender, message) {
+      const chatMessages = document.getElementById('chat-messages');
+      const messageElement = document.createElement('div');
+      messageElement.className = `chat-message ${sender}-message`;
+      // Для поддержки Markdown используем marked.parse()
+      messageElement.innerHTML = marked.parse(message);
+      chatMessages.appendChild(messageElement);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
 
-            const aiRecommendationsContainer = document.getElementById('ai-recommendations');
-            aiRecommendationsContainer.innerHTML = '<p>Получение рекомендаций...</p>';
-            showSection('results');
+    // Добавляем возможность отправлять сообщение клавишей ENTER в чате
+    document.getElementById('chat-input').addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        sendMessage();
+      }
+    });
 
-            try {
-                const response = await fetch('https://api.chatanywhere.tech/v1/chat/completions', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer sk-8s1V7S8JJv2X45w6Ekt8dcLnzV7gb75Dfu4HNuTYL4kqMReu'
-                    },
-                    body: JSON.stringify({
-                        model: 'gpt-3.5-turbo',
-                        messages: [
-                            {
-                                role: 'system',
-                                content: 'Вы - карьерный консультант и дружелюбный помощник, специализирующийся на рекомендации профессий и университетов на основе интересов и оценок учащихся в России. Анализируйте выбранные предметы и оценки, чтобы рекомендовать подходящие профессии и вузы. Предоставьте краткое описание, плюсы и минусы для каждой рекомендации. а также используйте структурированую запись ввиде списка, чтобы можно было легко ориентироваться в тексте, и еще предоставляйте количество баллов для поступления в тот или иной вуз и средние зарплаты на рекомендуемых профессиях в цифрах. выделяйте профессии и вузы нужными смайликами, а зарплату выделяйте смайликами денег, рекомендуйте какие предметы нужно подтянуть, чтобы поступить в тот или иной вуз или на ту или иную профессию.'
-                            },
-                            {
-                                role: 'user',
-                                content: `Меня зовут ${userName}. Мои любимые предметы: ${selectedSubjects.map(id => subjects.find(s => s.id === id).name).join(', ')}. Мои оценки: ${Object.entries(grades).map(([id, grade]) => `${subjects.find(s => s.id === id).name} - ${grade}`).join(', ')}. Посоветуйте мне подходящие профессии и вузы.`
-                            }
-                        ]
-                    })
-                });
+    // Переключение темной темы
+    const themeToggle = document.getElementById('theme-toggle');
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark-mode');
+    });
 
-                const data = await response.json();
-                const aiRecommendations = data.choices[0].message.content;
-
-                aiRecommendationsContainer.innerHTML = `
-                    <h3 class="text-xl font-bold mb-2">Рекомендации ИИ:</h3>
-                    <div class="prose">${aiRecommendations}</div>
-                `;
-            } catch (error) {
-                console.error('Error:', error);
-                aiRecommendationsContainer.innerHTML = '<p>Произошла ошибка при получении рекомендаций. Пожалуйста, попробуйте еще раз.</p>';
-            }
-        }
-
-        function showTab(tabId) {
-            document.querySelectorAll('.card').forEach(content => content.classList.add('hidden'));
-            if (tabId === 'main') {
-                document.getElementById('main-content').classList.remove('hidden');
-                document.getElementById('welcome').classList.remove('hidden');
-            } else {
-                document.getElementById(`${tabId}-content`).classList.remove('hidden');
-            }
-        }
-
-        function resetApp() {
-            selectedSubjects = [];
-            grades = {};
-            userName = '';
-            document.getElementById('name-input').value = '';
-            document.querySelectorAll('.subject-item').forEach(item => item.classList.remove('selected'));
-            document.querySelectorAll('.grade-button').forEach(button => button.classList.remove('selected'));
-            showSection('welcome');
-        }
-
-        async function sendMessage() {
-            const chatInput = document.getElementById('chat-input');
-            const message = chatInput.value.trim();
-            if (message) {
-                addMessageToChat('user', message);
-                chatInput.value = '';
-
-                try {
-                    const response = await fetch('https://api.chatanywhere.tech/v1/chat/completions', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': 'Bearer sk-8s1V7S8JJv2X45w6Ekt8dcLnzV7gb75Dfu4HNuTYL4kqMReu'
-                        },
-                        body: JSON.stringify({
-                            model: 'gpt-3.5-turbo',
-                            messages: [
-                                {
-                                    role: 'system',
-                                    content: 'Вы - карьерный консультант и дружелюбный помощник, специализирующийся на рекомендации профессий и университетов на основе интересов и оценок учащихся в России и других странах. Вы можете отвечать на любые вопросы, связанные с образованием, карьерой и профессиональным развитием.'
-                                },
-                                {
-                                    role: 'user',
-                                    content: message
-                                }
-                            ]
-                        })
-                    });
-
-                    const data = await response.json();
-                    const botReply = data.choices[0].message.content;
-                    addMessageToChat('bot', botReply);
-                } catch (error) {
-                    console.error('Error:', error);
-                    addMessageToChat('bot', 'Извините, произошла ошибка. Попробуйте еще раз позже.');
-                }
-            }
-        }
-        function addMessageToChat(sender, message) {
-            const chatMessages = document.getElementById('chat-messages');
-            const messageElement = document.createElement('div');
-            messageElement.className = `chat-message ${sender}-message`;
-            messageElement.textContent = message;
-            chatMessages.appendChild(messageElement);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        // Initialize the app
-        showSection('welcome');
-    </script>
+    // Инициализируем приложение
+    showSection('welcome');
+  </script>
 </body>
 </html>
