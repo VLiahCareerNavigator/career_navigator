@@ -1,6 +1,7 @@
 ### СПОСОБ ЗАЙТИ НА САЙТ 
 # 1 это перейти по ссылке: http://h92585eq.beget.tech
-# 2 это перейти по qr коду ![qr-code](https://github.com/user-attachments/assets/e74e9620-40ab-44aa-a734-74ce280883ae)
+# 2 это перейти по qr коду:
+ ![qr-code](https://github.com/user-attachments/assets/e74e9620-40ab-44aa-a734-74ce280883ae)
 
 # О проекте
 
