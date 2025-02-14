@@ -492,13 +492,13 @@
 
         try {
           const response = await fetch(
-            "proxy.php",
+            "https://api.chatanywhere.tech/v1/chat/completions",
             {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
                 Authorization:
-                  "API_KEY",
+                  "Bearer sk-8s1V7S8JJv2X45w6Ekt8dcLnzV7gb75Dfu4HNuTYL4kqMReu",
               },
               body: JSON.stringify({
                 model: "gpt-3.5-turbo",
@@ -622,13 +622,13 @@
 
           try {
             const response = await fetch(
-              "proxy.php",
+              "https://api.chatanywhere.tech/v1/chat/completions",
               {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
                   Authorization:
-                    "API_KEY",
+                    "Bearer sk-8s1V7S8JJv2X45w6Ekt8dcLnzV7gb75Dfu4HNuTYL4kqMReu",
                 },
                 body: JSON.stringify({
                   model: "gpt-3.5-turbo",
